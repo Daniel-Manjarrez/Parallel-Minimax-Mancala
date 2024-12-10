@@ -1,7 +1,9 @@
+
 import Debug.Trace (trace)
 import Data.List (maximumBy)
 import Data.Function (on)
 import System.Environment (getArgs)
+import Control.Parallel.Strategies
 
 -- Define the game state
 type Pit = Int
@@ -68,6 +70,7 @@ evaluateBoard :: GameState -> Int
 evaluateBoard (GameState b Player1) = b !! 6 - b !! 13
 evaluateBoard (GameState b Player2) = b !! 13 - b !! 6
 
+{-
 -- Minimax function with alpha-beta pruning
 minimax :: GameState -> Int -> Bool -> Int -> Int -> Int
 minimax state depth maximizingPlayer alpha beta
@@ -93,6 +96,36 @@ bestMove state depth =
      else 
        let scores = [minimax (makeMove state pit) (depth - 1) False (-1000) 1000 | pit <- moves]
        in fst $ maximumBy (compare `on` snd) (zip moves scores)
+-}
+
+
+minimax :: GameState -> Int -> Bool -> Int -> Int -> Int
+minimax state depth maximizingPlayer alpha beta
+  | depth == 0 || isGameOver state = evaluateBoard state
+  | null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
+  | maximizingPlayer =
+      let values = parMap rdeepseq
+                   (\pit -> minimax (makeMove state pit) (depth - 1) False alpha beta)
+                   (validMoves state)
+      in maximum values
+  | otherwise =
+      let values = parMap rdeepseq
+                   (\pit -> minimax (makeMove state pit) (depth - 1) True alpha beta)
+                   (validMoves state)
+      in minimum values
+
+
+bestMove :: GameState -> Int -> Pit
+bestMove state depth =
+  let moves = validMoves state
+  in if null moves
+     then error "No valid moves available"
+     else 
+       let scores = parMap rdeepseq
+                    (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000))
+                    moves
+       in fst $ maximumBy (compare `on` snd) scores
+
 
 -- Function to display the game board in the requested format
 displayBoard :: GameState -> IO ()
@@ -146,4 +179,3 @@ main = do
       -- Start the game with the initial state and the given depth
       let initialState = GameState [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0] Player1
       playGame initialState depth
-
