@@ -68,7 +68,6 @@ evaluateBoard :: GameState -> Int
 evaluateBoard (GameState b Player1) = b !! 6 - b !! 13
 evaluateBoard (GameState b Player2) = b !! 13 - b !! 6
 
-{-
 -- Minimax function with alpha-beta pruning
 minimax :: GameState -> Int -> Bool -> Int -> Int -> Int
 minimax state depth maximizingPlayer alpha beta
@@ -94,8 +93,8 @@ bestMove state depth =
      else 
        let scores = [minimax (makeMove state pit) (depth - 1) False (-1000) 1000 | pit <- moves]
        in fst $ maximumBy (compare `on` snd) (zip moves scores)
--}
 
+{-
 
 minimax :: GameState -> Int -> Bool -> Int -> Int -> Int
 minimax state depth maximizingPlayer alpha beta
@@ -124,6 +123,7 @@ bestMove state depth =
                     moves
        in fst $ maximumBy (compare `on` snd) scores
 
+-}
 
 -- Function to display the game board in the requested format
 displayBoard :: GameState -> IO ()

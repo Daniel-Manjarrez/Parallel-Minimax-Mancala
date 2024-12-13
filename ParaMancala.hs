@@ -21,13 +21,15 @@ switchPlayer Player1 = Player2
 switchPlayer Player2 = Player1
 
 -- Sowing seeds
-sow :: Board -> Int -> Int -> Board
-sow b start seeds = go b start seeds
+sow :: GameState -> Int -> Int -> (Board, Int)
+sow (GameState b p) start seeds = go b start seeds 0
   where
-    go board idx 0 = board
-    go board idx n =
+    go board idx 0 finalIdx = (board, finalIdx)
+    go board idx n finalIdx =
       let nextIdx = (idx + 1) `mod` 14
-      in go (updateBoard board nextIdx (+1)) nextIdx (n - 1)
+          shift = if p == Player1 && nextIdx == 13 || p == Player2 && nextIdx == 6 then 1 else 0
+          nextIdx' = (nextIdx + shift) `mod` 14
+      in go (updateBoard board nextIdx' (+1)) nextIdx' (n - 1) nextIdx'
     updateBoard board idx f = take idx board ++ [f (board !! idx)] ++ drop (idx + 1) board
 
 -- Make a move
@@ -35,8 +37,8 @@ makeMove :: GameState -> Pit -> GameState
 makeMove (GameState b p) pit =
   let seeds = b !! pit
       b1 = take pit b ++ [0] ++ drop (pit + 1) b  -- Remove seeds from the selected pit
-      b2 = sow b1 pit seeds
-      finalIdx = (pit + seeds) `mod` 14
+      (b2, finalIdx) = sow (GameState b1 p) pit seeds
+      -- finalIdx = (pit + seeds) `mod` 14
       isOwnStore = (p == Player1 && finalIdx == 6) || (p == Player2 && finalIdx == 13)
       isCapture = p == Player1 && finalIdx < 6 && b2 !! finalIdx == 1 && b2 !! (12 - finalIdx) > 0
               || p == Player2 && finalIdx > 6 && finalIdx < 13 && b2 !! finalIdx == 1 && b2 !! (12 - finalIdx) > 0
@@ -48,16 +50,12 @@ makeMove (GameState b p) pit =
 
 -- Capture seeds
 captureSeeds :: Board -> Int -> Player -> Board
-captureSeeds b idx Player1 =
+captureSeeds b idx player =
   let captured = b !! (12 - idx)
       b1 = take (12 - idx) b ++ [0] ++ drop (13 - idx) b
       b2 = take idx b1 ++ [0] ++ drop (idx + 1) b1
-  in take 6 b2 ++ [(b2 !! 6) + captured + 1] ++ drop 7 b2
-captureSeeds b idx Player2 =
-  let captured = b !! (12 - idx)
-      b1 = take (12 - idx) b ++ [0] ++ drop (13 - idx) b
-      b2 = take idx b1 ++ [0] ++ drop (idx + 1) b1
-  in take 13 b2 ++ [(b2 !! 13) + captured + 1]
+      storeIdx = if player == Player1 then 6 else 13
+  in take storeIdx b2 ++ [(b2 !! storeIdx) + captured + 1] ++ drop (storeIdx + 1) b2
 
 -- Generate valid moves
 validMoves :: GameState -> [Pit]
@@ -135,7 +133,8 @@ displayBoard (GameState b _) = do
 
   -- Print the board with separators and store in the middle
   putStrLn "--------------------"
-  putStrLn $ "| " ++ unwords (map show player2Pits) ++ " | " ++ show player2Store ++ " |"
+  putStrLn $ "| " ++ show player2Store ++ " | " ++ unwords (map show (reverse player2Pits)) ++ " |"
+  -- putStrLn $ "| " ++ unwords (map show player2Pits) ++ " | " ++ show player2Store ++ " |"
   putStrLn "|------------------|"
   putStrLn $ "| " ++ unwords (map show player1Pits) ++ " | " ++ show player1Store ++ " |"
   putStrLn "--------------------"
