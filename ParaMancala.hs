@@ -13,7 +13,7 @@ data GameState = GameState { board :: Board, currentPlayer :: Player } deriving 
 -- Check if the game is over
 isGameOver :: GameState -> Bool
 isGameOver (GameState b _) =
-  all (== 0) (take 6 b) || all (== 0) (drop 7 b)
+  all (== 0) (take 6 b) || all (== 0) (take 6 (drop 7 b))
 
 -- Switch the current player
 switchPlayer :: Player -> Player
@@ -143,6 +143,7 @@ displayBoard (GameState b _) = do
 playGame :: GameState -> Int -> Int -> IO ()
 playGame state depth parallelDepth
   | isGameOver state = do
+      displayBoard state
       putStrLn "Game Over!"
       let finalBoard = board state
           player1Score = finalBoard !! 6 + sum (take 6 finalBoard)
