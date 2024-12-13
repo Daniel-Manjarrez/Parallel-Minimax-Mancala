@@ -168,11 +168,12 @@ main = do
   
   -- Check if a depth argument is provided
   case args of
-    [depthStr] -> do
+    [depthStr, parallelDepthStr] -> do
       -- Convert the input string to an integer
       let depth = read depthStr :: Int
+          parallelDepth = read parallelDepthStr :: Int
       -- Print a starting message
       putStrLn "Starting Mancala Game"
       -- Start the game with the initial state and the given depth
       let initialState = GameState [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0] Player1
-      playGame initialState depth
+      playGame initialState depth parallelDepth
