@@ -3,7 +3,7 @@ Test suite QuickTest: RUNNING...
 Cases: 2  Tried: 0  Errors: 0  Failures: 0Cases: 2  Tried: 1  Errors: 0  Failures: 0                                          ### Error in:   1
 No valid moves available
 CallStack (from HasCallStack):
-  error, called at src\MiniMax.hs:79:11 in Parallel-Minimax-Mancala-0.1.0.0-inplace:MiniMax
+  error, called at src\MiniMax.hs:58:11 in Parallel-Minimax-Mancala-0.1.0.0-inplace:MiniMax
 Cases: 2  Tried: 2  Errors: 1  Failures: 0
 Starting all tests...
 Running GameState tests...
