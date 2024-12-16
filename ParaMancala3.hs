@@ -38,7 +38,6 @@ makeMove (GameState b p) pit =
   let seeds = b !! pit
       b1 = take pit b ++ [0] ++ drop (pit + 1) b  -- Remove seeds from the selected pit
       (b2, finalIdx) = sow (GameState b1 p) pit seeds
-      -- finalIdx = (pit + seeds) `mod` 14
       isOwnStore = (p == Player1 && finalIdx == 6) || (p == Player2 && finalIdx == 13)
       isCapture = p == Player1 && finalIdx < 6 && b2 !! finalIdx == 1 && b2 !! (12 - finalIdx) > 0
               || p == Player2 && finalIdx > 6 && finalIdx < 13 && b2 !! finalIdx == 1 && b2 !! (12 - finalIdx) > 0
@@ -73,57 +72,37 @@ minimax state depth maximizingPlayer alpha beta parallelDepth
   | depth == 0 || isGameOver state = evaluateBoard state
   | null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
   | depth >= parallelDepth =
-      -- Parallel evaluation for shallower levels
-      let firstMove = head (validMoves state)
-      in if maximizingPlayer
-      then
-        let firstValue = seqMinimax (makeMove state firstMove) (depth - 1) False alpha beta parallelDepth
-            firstAlpha = max alpha firstValue
-            values = parMap rdeepseq
-                        (\pit -> minimax (makeMove state pit) (depth - 1) False firstAlpha beta parallelDepth)
-                        (tail (validMoves state))
-        in maximum (firstValue : values)
-      else
-        let firstValue = seqMinimax (makeMove state firstMove) (depth - 1) True alpha beta parallelDepth
-            firstBeta = min beta firstValue
-            values = parMap rdeepseq
-                        (\pit -> minimax (makeMove state pit) (depth - 1) True alpha firstBeta parallelDepth)
-                        (tail (validMoves state))
-        in minimum (firstValue : values)
+    let firstMove = head (validMoves state)
+        firstValue = seqMinimax (makeMove state firstMove) (depth - 1) (not maximizingPlayer) alpha beta parallelDepth
+        (newAlpha, newBeta) = if maximizingPlayer
+                                       then (max alpha firstValue, beta)
+                                       else (alpha, min beta firstValue)
+        values = parMap rdeepseq
+                 (\pit -> minimax (makeMove state pit) (depth - 1) (not maximizingPlayer) newAlpha newBeta parallelDepth)
+                 (tail (validMoves state))
+        combined = (firstValue : values)
+    in if maximizingPlayer then maximum combined else minimum combined
   | otherwise =
       -- Sequential alpha-beta pruning for deeper levels
-      if maximizingPlayer
-        then maximum (map 
-                        (\pit -> seqMinimax (makeMove state pit) (depth - 1) False alpha beta parallelDepth) 
-                        (validMoves state))
-        else minimum (map 
-                        (\pit -> seqMinimax (makeMove state pit) (depth - 1) True alpha beta parallelDepth) 
-                        (validMoves state))
+      let value = map (\pit -> seqMinimax (makeMove state pit) (depth - 1) (not maximizingPlayer) alpha beta parallelDepth) (validMoves state)
+      in if maximizingPlayer then maximum value else minimum value
+
 
 seqMinimax :: GameState -> Int -> Bool -> Int -> Int -> Int -> Int
 seqMinimax state depth maximizingPlayer alpha beta parallelDepth
   | depth == 0 || isGameOver state = evaluateBoard state
-  | null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
-  | otherwise =
-      if maximizingPlayer
-      then alphaBetaMax (validMoves state) alpha beta
-      else alphaBetaMin (validMoves state) alpha beta
+  | null (validMoves state) = evaluateBoard state
+  | otherwise = alphaBeta (validMoves state) (alpha, beta)
   where
-    alphaBetaMax [] alpha _ = alpha
-    alphaBetaMax (pit:pits) alpha beta =
-      let newValue = seqMinimax (makeMove state pit) (depth - 1) False alpha beta parallelDepth
-          newAlpha = max alpha newValue
-      in if newAlpha >= beta
-         then newAlpha
-         else alphaBetaMax pits newAlpha beta
-
-    alphaBetaMin [] _ beta = beta
-    alphaBetaMin (pit:pits) alpha beta =
-      let newValue = seqMinimax (makeMove state pit) (depth - 1) True alpha beta parallelDepth
-          newBeta = min beta newValue
-      in if alpha >= newBeta
-         then newBeta
-         else alphaBetaMin pits alpha newBeta
+    alphaBeta [] (alpha, beta) = if maximizingPlayer then alpha else beta
+    alphaBeta (pit:pits) (alpha, beta) =
+      let newValue = seqMinimax (makeMove state pit) (depth - 1) (not maximizingPlayer) alpha beta parallelDepth
+          (newAlpha, newBeta) = if maximizingPlayer
+                                then (max alpha newValue, beta)
+                                else (alpha, min beta newValue)
+      in if newAlpha >= newBeta
+         then if maximizingPlayer then newAlpha else newBeta
+         else alphaBeta pits (newAlpha, newBeta)
 
 
 bestMove :: GameState -> Int -> Int -> Pit
