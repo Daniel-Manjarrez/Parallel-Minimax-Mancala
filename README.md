@@ -13,3 +13,4 @@ A parallel functional programming project that showcases a parallelized minimax 
 
 ```cabal build```
 ``` cabal exec Parallel-Minimax-Mancala 12 6```
+``` cabal test``` or ``` cabal test QuickTest```
