@@ -1,7 +1,11 @@
 module MiniMax where
 
 import GameLogic (makeMove, validMoves)
-import GameState (GameState, Player(..), Pit)
+import GameState (GameState(..), Player(..), Pit, isGameOver)
+import Control.Parallel.Strategies (parMap, rdeepseq)
+import Data.List (maximumBy)
+import Data.Function (on)
+
 
 -- Heuristic to evaluate the board
 evaluateBoard :: GameState -> Int

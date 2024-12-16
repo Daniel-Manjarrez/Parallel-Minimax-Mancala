@@ -1,4 +1,4 @@
-resolver: lts-21.14  
+resolver: lts-18.28
 
 packages:
   - .
@@ -8,3 +8,6 @@ extra-deps:
 
 flags: {}
 extra-package-dbs: []
+
+tests:
+  - QuickTest
