@@ -16,7 +16,8 @@ main = do
       putStrLn "Starting Mancala Game"
       let initialState = GameState [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0] Player1
       playGame initialState depth parallelDepth
-    _ -> putStrLn "Usage: mancala <depth> <parallelDepth>"
+    _ -> do
+      putStrLn "Usage: ParaMancala3 <depth> <parallelDepth>"
 
 -- New function to start the game logic, making it testable
 startGame :: Int -> Int -> IO ()

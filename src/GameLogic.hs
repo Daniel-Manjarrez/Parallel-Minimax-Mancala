@@ -6,8 +6,8 @@ import GameState (GameState(..), Player(..), switchPlayer, Pit, Board)
 sow :: GameState -> Int -> Int -> (Board, Int)
 sow (GameState b p) start seeds = go b start seeds 0
   where
-    go board idx 0 finalIdx = (board, finalIdx)
-    go board idx n finalIdx =
+    go board _ 0 finalIdx = (board, finalIdx)
+    go board idx n _ =
       let nextIdx = (idx + 1) `mod` 14
           shift = if p == Player1 && nextIdx == 13 || p == Player2 && nextIdx == 6 then 1 else 0
           nextIdx' = (nextIdx + shift) `mod` 14
