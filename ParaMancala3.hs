@@ -69,8 +69,7 @@ evaluateBoard (GameState b Player2) = b !! 13 - b !! 6
 
 minimax :: GameState -> Int -> Bool -> Int -> Int -> Int -> Int
 minimax state depth maximizingPlayer alpha beta parallelDepth
-  | depth == 0 || isGameOver state = evaluateBoard state
-  | null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
+  | depth == 0 || isGameOver state || null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
   | depth >= parallelDepth =
     let firstMove = head (validMoves state)
         firstValue = seqMinimax (makeMove state firstMove) (depth - 1) (not maximizingPlayer) alpha beta parallelDepth
@@ -90,8 +89,7 @@ minimax state depth maximizingPlayer alpha beta parallelDepth
 
 seqMinimax :: GameState -> Int -> Bool -> Int -> Int -> Int -> Int
 seqMinimax state depth maximizingPlayer alpha beta parallelDepth
-  | depth == 0 || isGameOver state = evaluateBoard state
-  | null (validMoves state) = evaluateBoard state
+  | depth == 0 || isGameOver state || null (validMoves state) = evaluateBoard state
   | otherwise = alphaBeta (validMoves state) (alpha, beta)
   where
     alphaBeta [] (alpha, beta) = if maximizingPlayer then alpha else beta
