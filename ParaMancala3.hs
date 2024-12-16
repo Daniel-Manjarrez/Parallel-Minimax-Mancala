@@ -1,4 +1,4 @@
-import Debug.Trace (trace)
+import Debug.Trace()
 import Data.List (maximumBy)
 import Data.Function (on)
 import System.Environment (getArgs)
@@ -24,8 +24,8 @@ switchPlayer Player2 = Player1
 sow :: GameState -> Int -> Int -> (Board, Int)
 sow (GameState b p) start seeds = go b start seeds 0
   where
-    go board idx 0 finalIdx = (board, finalIdx)
-    go board idx n finalIdx =
+    go board _ 0 finalIdx = (board, finalIdx)
+    go board idx n _ =
       let nextIdx = (idx + 1) `mod` 14
           shift = if p == Player1 && nextIdx == 13 || p == Player2 && nextIdx == 6 then 1 else 0
           nextIdx' = (nextIdx + shift) `mod` 14
@@ -72,7 +72,7 @@ minimax state depth maximizingPlayer alpha beta parallelDepth
   | depth == 0 || isGameOver state || null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
   | depth >= parallelDepth =
     let firstMove = head (validMoves state)
-        firstValue = seqMinimax (makeMove state firstMove) (depth - 1) (not maximizingPlayer) alpha beta parallelDepth
+        firstValue = seqMinimax (makeMove state firstMove) (depth - 1) (not maximizingPlayer) alpha beta
         (newAlpha, newBeta) = if maximizingPlayer
                                        then (max alpha firstValue, beta)
                                        else (alpha, min beta firstValue)
@@ -83,21 +83,21 @@ minimax state depth maximizingPlayer alpha beta parallelDepth
     in if maximizingPlayer then maximum combined else minimum combined
   | otherwise =
       -- Sequential alpha-beta pruning for deeper levels
-      let value = map (\pit -> seqMinimax (makeMove state pit) (depth - 1) (not maximizingPlayer) alpha beta parallelDepth) (validMoves state)
+      let value = map (\pit -> seqMinimax (makeMove state pit) (depth - 1) (not maximizingPlayer) alpha beta) (validMoves state)
       in if maximizingPlayer then maximum value else minimum value
 
 
-seqMinimax :: GameState -> Int -> Bool -> Int -> Int -> Int -> Int
-seqMinimax state depth maximizingPlayer alpha beta parallelDepth
+seqMinimax :: GameState -> Int -> Bool -> Int -> Int -> Int
+seqMinimax state depth maximizingPlayer alpha beta
   | depth == 0 || isGameOver state || null (validMoves state) = evaluateBoard state
   | otherwise = alphaBeta (validMoves state) (alpha, beta)
   where
-    alphaBeta [] (alpha, beta) = if maximizingPlayer then alpha else beta
-    alphaBeta (pit:pits) (alpha, beta) =
-      let newValue = seqMinimax (makeMove state pit) (depth - 1) (not maximizingPlayer) alpha beta parallelDepth
+    alphaBeta [] (a, b) = if maximizingPlayer then a else b
+    alphaBeta (pit:pits) (a, b) =
+      let newValue = seqMinimax (makeMove state pit) (depth - 1) (not maximizingPlayer) a b
           (newAlpha, newBeta) = if maximizingPlayer
-                                then (max alpha newValue, beta)
-                                else (alpha, min beta newValue)
+                                then (max a newValue, b)
+                                else (a, min b newValue)
       in if newAlpha >= newBeta
          then if maximizingPlayer then newAlpha else newBeta
          else alphaBeta pits (newAlpha, newBeta)
@@ -174,3 +174,5 @@ main = do
       -- Start the game with the initial state and the given depth
       let initialState = GameState [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0] Player1
       playGame initialState depth parallelDepth
+    _ -> do
+      putStrLn "Usage: ParaMancala3 <depth> <parallelDepth>"
