@@ -132,13 +132,14 @@ bestMove state depth parallelDepth =
   let moves = validMoves state
   in if null moves
      then error "No valid moves available"
-     else 
-       let scores = parMap rdeepseq
-                    (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000 parallelDepth)) moves
-       -- let scores = map (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000 parallelDepth)) moves
-       in fst $ maximumBy (compare `on` snd) scores
-
-
+     else let scores = if depth >= parallelDepth 
+                  then parMap rdeepseq 
+                           (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000 parallelDepth)) 
+                           moves
+                  else map 
+                         (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000 parallelDepth)) 
+                         moves
+     in fst $ maximumBy (compare `on` snd) scores
 
 
 
