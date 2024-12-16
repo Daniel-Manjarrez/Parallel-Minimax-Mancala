@@ -1,0 +1,91 @@
+Test suite QuickTest: RUNNING...
+Cases: 3  Tried: 0  Errors: 0  Failures: 0Cases: 3  Tried: 1  Errors: 0  Failures: 0Cases: 3  Tried: 2  Errors: 0  Failures: 0                                          Cases: 3  Tried: 3  Errors: 0  Failures: 0
+Cases: 2  Tried: 0  Errors: 0  Failures: 0Cases: 2  Tried: 1  Errors: 0  Failures: 0                                          ### Error in:   1
+No valid moves available
+CallStack (from HasCallStack):
+  error, called at src\MiniMax.hs:79:11 in Parallel-Minimax-Mancala-0.1.0.0-inplace:MiniMax
+Cases: 2  Tried: 2  Errors: 1  Failures: 0
+Starting all tests...
+Running GameState tests...
+Running GameLogic tests...
+Test 1: Valid moves for Player1
+[0,1,2,3,4,5]
+
+Test 2: Valid moves for Player2
+[7,8,9,10,11,12]
+
+Test 3: Making a move (Player1, pit 2)
+GameState {board = [4,4,0,5,5,5,1,4,4,4,4,4,4,0], currentPlayer = Player1}
+
+Test 4: Sowing seeds from pit 0
+[4,5,5,5,5,4,0,4,4,4,4,4,4,0]
+4
+
+Test 5: Capturing seeds (Player1, pit 3)
+GameState {board = [0,4,4,0,5,4,0,4,4,0,4,4,4,0], currentPlayer = Player2}
+
+All tests completed.
+Running MiniMax tests...
+Running Display tests...
+Initial Game State:
+--------------------
+| 0 | 4 4 4 4 4 4 |
+|------------------|
+| 4 4 4 4 4 4 | 0 |
+--------------------
+
+Mid-Game State:
+--------------------
+| 12 | 6 7 4 3 5 0 |
+|------------------|
+| 3 0 6 1 8 2 | 10 |
+--------------------
+
+End-Game State:
+--------------------
+| 30 | 0 0 0 0 0 0 |
+|------------------|
+| 0 0 0 0 0 0 | 25 |
+--------------------
+
+All tests complete.
+Running Run tests...
+Starting the game...
+Current Player: Player1
+Board: [4,4,4,4,4,4,0,4,4,4,4,4,4,0]
+Player Player1 chooses pit 0
+Current Player: Player2
+Board: [0,5,5,5,5,4,0,4,4,4,4,4,4,0]
+Player Player2 chooses pit 7
+Current Player: Player1
+Board: [0,5,5,5,5,4,0,0,5,5,5,5,4,0]
+Player Player1 chooses pit 1
+Current Player: Player1
+Board: [0,0,6,6,6,5,1,0,5,5,5,5,4,0]
+Player Player1 chooses pit 2
+Current Player: Player2
+Board: [0,0,0,7,7,6,2,1,6,5,5,5,4,0]
+Player Player2 chooses pit 7
+Current Player: Player1
+Board: [0,0,0,7,7,6,2,0,7,5,5,5,4,0]
+Player Player1 chooses pit 3
+Current Player: Player2
+Board: [0,0,0,0,8,7,3,1,8,6,6,5,4,0]
+Player Player2 chooses pit 7
+Current Player: Player1
+Board: [0,0,0,0,8,7,3,0,9,6,6,5,4,0]
+Player Player1 chooses pit 4
+Current Player: Player2
+Board: [0,0,0,0,0,8,4,1,10,7,7,6,5,0]
+Player Player2 chooses pit 7
+Current Player: Player1
+Board: [0,0,0,0,0,8,4,0,11,7,7,6,5,0]
+Player Player1 chooses pit 5
+Current Player: Player2
+Board: [0,0,0,0,0,0,12,1,12,8,8,7,0,0]
+Game Over!
+Final Scores - Player 1: 12, Player 2: 36
+Player 2 Wins!
+All tests completed!
+Test suite QuickTest: PASS
+Test suite logged to: C:\Users\chenc\Desktop\PFP\project\Parallel-Minimax-Mancala\dist-newstyle\build\x86_64-windows\ghc-9.8.2\Parallel-Minimax-Mancala-0.1.0.0\t\QuickTest\test\Parallel-Minimax-Mancala-0.1.0.0-QuickTest.log

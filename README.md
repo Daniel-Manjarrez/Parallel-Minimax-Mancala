@@ -1,10 +1,16 @@
 # Parallel-Minimax-Mancala
 A parallel functional programming project that showcases a parallelized minimax mancala solver in Haskell
 
-```ghc -o Mancala MancalaSolver.hs```
+```ghc -O2 -threaded -rtsopts -with-rtsopts=-N ParaMancala3.hs```
 
-```./MancalaSolver 5 ``` <- arg[1] is depth
+```./ParaMancala3 12 6 +RTS -N6``` <- arg[1] is depth, arg[2] is a parallel depth past which algorithm runs fully sequentially
 
-```ghc -O2 -threaded -rtsopts -with-rtsopts=-N MancalaSolver.hs```
 
-```./MancalaSolver 6 +RTS -N8``` <- arg[1] is depth
+
+
+
+12/16/2024 update
+
+```cabal build```
+``` cabal exec Parallel-Minimax-Mancala 12 6```
+``` cabal test``` or ``` cabal test QuickTest```
