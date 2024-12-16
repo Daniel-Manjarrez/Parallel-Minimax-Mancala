@@ -74,18 +74,17 @@ minimax state depth maximizingPlayer alpha beta parallelDepth
   | null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
   | depth >= parallelDepth =
       -- Parallel evaluation for shallower levels
-      if maximizingPlayer
+      let firstMove = head (validMoves state)
+      in if maximizingPlayer
       then
-        let firstMove = head (validMoves state)
-            firstValue = seqMinimax (makeMove state firstMove) (depth - 1) False alpha beta parallelDepth
+        let firstValue = seqMinimax (makeMove state firstMove) (depth - 1) False alpha beta parallelDepth
             firstAlpha = max alpha firstValue
             values = parMap rdeepseq
                         (\pit -> minimax (makeMove state pit) (depth - 1) False firstAlpha beta parallelDepth)
                         (tail (validMoves state))
         in maximum (firstValue : values)
       else
-        let firstMove = head (validMoves state)
-            firstValue = seqMinimax (makeMove state firstMove) (depth - 1) True alpha beta parallelDepth
+        let firstValue = seqMinimax (makeMove state firstMove) (depth - 1) True alpha beta parallelDepth
             firstBeta = min beta firstValue
             values = parMap rdeepseq
                         (\pit -> minimax (makeMove state pit) (depth - 1) True alpha firstBeta parallelDepth)
