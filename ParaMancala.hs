@@ -161,16 +161,15 @@ playGame state depth parallelDepth
       let newState = makeMove state move
       playGame newState depth parallelDepth
 
-
 main :: IO ()
 main = do
   -- Get command-line arguments
   args <- getArgs
   
-  -- Check if a depth argument is provided
+  -- Check if the correct number of arguments is provided
   case args of
     [depthStr, parallelDepthStr] -> do
-      -- Convert the input string to an integer
+      -- Convert the input strings to integers
       let depth = read depthStr :: Int
           parallelDepth = read parallelDepthStr :: Int
       -- Print a starting message
@@ -178,3 +177,7 @@ main = do
       -- Start the game with the initial state and the given depth
       let initialState = GameState [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0] Player1
       playGame initialState depth parallelDepth
+    
+    _ -> do
+      -- Handle invalid number of arguments or other errors
+      putStrLn "Usage: ParaMancala <depth> <parallelDepth>"

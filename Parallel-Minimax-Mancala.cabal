@@ -1,0 +1,16 @@
+cabal-version:       3.0
+name:                Parallel-Minimax-Mancala
+version:             0.1.0.0
+build-type:          Simple
+
+executable parallel-minimax-mancala
+  main-is:           Main.hs
+  build-depends:     base ^>=4.14.3.0
+  hs-source-dirs:    src
+  default-language:  Haskell2010
+
+library
+  exposed-modules:   GameState, GameLogic, Minimax, Display, Run
+  build-depends:     base ^>=4.14.3.0
+  hs-source-dirs:    src
+  default-language:  Haskell2010
