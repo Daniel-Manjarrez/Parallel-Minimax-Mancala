@@ -1,12 +1,12 @@
 # Parallel-Minimax-Mancala
 A parallel functional programming project that showcases a parallelized minimax mancala solver in Haskell
 
-#Requirement
+# Requirement
 1. Linux operating system.
 2. GHC (Glasgow Haskell Compiler) installed.
 3. Cabal build tool installed.
 
-#File Explaination
+# File Explaination
 MancalaSolver.hs is a sequential Minimax with Alpha Beta Pruning solution for Mancala Game. 
 
 ParaMancala1.hs attempt parallelize computing the best move at each state without considering parallelized depth
@@ -17,7 +17,7 @@ ParaMancala3.hs attempt parallelized Minimax in the shallower level while sequen
 
 ParaMancala4.hs is the final version, applying principal variation of sequential leftmost search. 
 
-#Configuaration and Execuation
+# Configuaration and Execuation
 
 Build the project by this command:
 
@@ -35,7 +35,7 @@ or
 ``` cabal test QuickTest```
 
 
-#Single file execuation Experiment
+# Single file execuation Experiment
 
 ```ghc -O2 -threaded -rtsopts -with-rtsopts=-N <..>.hs```
 
