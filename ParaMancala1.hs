@@ -1,26 +1,26 @@
+
 import Debug.Trace (trace)
 import Data.List (maximumBy)
 import Data.Function (on)
 import System.Environment (getArgs)
 import Control.Parallel.Strategies
 
--- Define the game state
+ 
 type Pit = Int
 type Board = [Int]
 data Player = Player1 | Player2 deriving (Eq, Show)
 data GameState = GameState { board :: Board, currentPlayer :: Player } deriving (Show)
 
--- Check if the game is over
+ 
 isGameOver :: GameState -> Bool
 isGameOver (GameState b _) =
   all (== 0) (take 6 b) || all (== 0) (take 6 (drop 7 b))
 
--- Switch the current player
 switchPlayer :: Player -> Player
 switchPlayer Player1 = Player2
 switchPlayer Player2 = Player1
 
--- Sowing seeds
+ 
 sow :: GameState -> Int -> Int -> (Board, Int)
 sow (GameState b p) start seeds = go b start seeds 0
   where
@@ -48,7 +48,7 @@ makeMove (GameState b p) pit =
       nextPlayer = if isOwnStore then p else switchPlayer p
   in GameState b3 nextPlayer
 
--- Capture seeds
+ 
 captureSeeds :: Board -> Int -> Player -> Board
 captureSeeds b idx player =
   let captured = b !! (12 - idx)
@@ -57,7 +57,7 @@ captureSeeds b idx player =
       storeIdx = if player == Player1 then 6 else 13
   in take storeIdx b2 ++ [(b2 !! storeIdx) + captured + 1] ++ drop (storeIdx + 1) b2
 
--- Generate valid moves
+ 
 validMoves :: GameState -> [Pit]
 validMoves (GameState b Player1) = [i | i <- [0..5], b !! i > 0]
 validMoves (GameState b Player2) = [i | i <- [7..12], b !! i > 0]
@@ -67,63 +67,33 @@ evaluateBoard :: GameState -> Int
 evaluateBoard (GameState b Player1) = b !! 6 - b !! 13
 evaluateBoard (GameState b Player2) = b !! 13 - b !! 6
 
-
-minimax :: GameState -> Int -> Bool -> Int -> Int -> Int -> Int
-minimax state depth maximizingPlayer alpha beta parallelDepth
+minimax :: GameState -> Int -> Bool -> Int -> Int -> Int
+minimax state depth maximizingPlayer alpha beta
   | depth == 0 || isGameOver state = evaluateBoard state
   | null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
-  | depth >= parallelDepth =
-      -- Parallel evaluation for shallower levels
-      if maximizingPlayer
-      then
-        let values = parMap rdeepseq
-                     (\pit -> minimax (makeMove state pit) (depth - 1) False alpha beta parallelDepth)
-                     (validMoves state)
-        in maximum values
-      else
-        let values = parMap rdeepseq
-                     (\pit -> minimax (makeMove state pit) (depth - 1) True alpha beta parallelDepth)
-                     (validMoves state)
-        in minimum values
+  | maximizingPlayer =
+      let values = parMap rdeepseq
+                   (\pit -> minimax (makeMove state pit) (depth - 1) False alpha beta)
+                   (validMoves state)
+      in maximum values
   | otherwise =
-      -- Sequential alpha-beta pruning for deeper levels
-      if maximizingPlayer
-      then alphaBetaMax (validMoves state) alpha beta
-      else alphaBetaMin (validMoves state) alpha beta
-  where
-    alphaBetaMax [] alpha _ = alpha
-    alphaBetaMax (pit:pits) alpha beta =
-      let newValue = minimax (makeMove state pit) (depth - 1) False alpha beta parallelDepth
-          newAlpha = max alpha newValue
-      in if newAlpha >= beta
-         then newAlpha -- Beta cutoff
-         else alphaBetaMax pits newAlpha beta
-
-    alphaBetaMin [] _ beta = beta
-    alphaBetaMin (pit:pits) alpha beta =
-      let newValue = minimax (makeMove state pit) (depth - 1) True alpha beta parallelDepth
-          newBeta = min beta newValue
-      in if alpha >= newBeta
-         then newBeta -- Alpha cutoff
-         else alphaBetaMin pits alpha newBeta
+      let values = parMap rdeepseq
+                   (\pit -> minimax (makeMove state pit) (depth - 1) True alpha beta)
+                   (validMoves state)
+      in minimum values
 
 
-bestMove :: GameState -> Int -> Int -> Pit
-bestMove state depth parallelDepth =
+bestMove :: GameState -> Int -> Pit
+bestMove state depth =
   let moves = validMoves state
   in if null moves
      then error "No valid moves available"
      else 
        let scores = parMap rdeepseq
-                    (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000 parallelDepth))
+                    (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000))
                     moves
        in fst $ maximumBy (compare `on` snd) scores
 
-
-
-
-
--- Function to display the game board in the requested format
 displayBoard :: GameState -> IO ()
 displayBoard (GameState b _) = do
   let player1Pits = take 6 b
@@ -140,8 +110,8 @@ displayBoard (GameState b _) = do
   putStrLn "--------------------"
 
 
-playGame :: GameState -> Int -> Int -> IO ()
-playGame state depth parallelDepth
+playGame :: GameState -> Int -> IO ()
+playGame state depth
   | isGameOver state = do
       displayBoard state
       putStrLn "Game Over!"
@@ -155,29 +125,25 @@ playGame state depth parallelDepth
           then putStrLn "Player 2 Wins!"
           else putStrLn "It's a tie!"
   | otherwise = do
-      displayBoard state
-      let move = bestMove state depth parallelDepth
+      displayBoard state  -- Display the board after every move
+      let move = bestMove state depth
       putStrLn $ "Player " ++ show (currentPlayer state) ++ " chooses pit " ++ show move
       let newState = makeMove state move
-      playGame newState depth parallelDepth
+      playGame newState depth
+
 
 main :: IO ()
 main = do
   -- Get command-line arguments
   args <- getArgs
   
-  -- Check if the correct number of arguments is provided
+  -- Check if a depth argument is provided
   case args of
-    [depthStr, parallelDepthStr] -> do
-      -- Convert the input strings to integers
+    [depthStr] -> do
+      -- Convert the input string to an integer
       let depth = read depthStr :: Int
-          parallelDepth = read parallelDepthStr :: Int
       -- Print a starting message
       putStrLn "Starting Mancala Game"
       -- Start the game with the initial state and the given depth
       let initialState = GameState [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0] Player1
-      playGame initialState depth parallelDepth
-    
-    _ -> do
-      -- Handle invalid number of arguments or other errors
-      putStrLn "Usage: ParaMancala <depth> <parallelDepth>"
+      playGame initialState depth

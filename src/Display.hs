@@ -1,8 +1,7 @@
 module Display where
 
 import GameState (GameState(..))
-
--- Function to display the game board
+ 
 displayBoard :: GameState -> IO ()
 displayBoard (GameState b _) = do
   let player1Pits = take 6 b
