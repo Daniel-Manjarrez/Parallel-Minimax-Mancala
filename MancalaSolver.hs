@@ -94,37 +94,6 @@ bestMove state depth =
        let scores = [minimax (makeMove state pit) (depth - 1) False (-1000) 1000 | pit <- moves]
        in fst $ maximumBy (compare `on` snd) (zip moves scores)
 
-{-
-
-minimax :: GameState -> Int -> Bool -> Int -> Int -> Int
-minimax state depth maximizingPlayer alpha beta
-  | depth == 0 || isGameOver state = evaluateBoard state
-  | null (validMoves state) = evaluateBoard state -- No moves, evaluate the board
-  | maximizingPlayer =
-      let values = parMap rdeepseq
-                   (\pit -> minimax (makeMove state pit) (depth - 1) False alpha beta)
-                   (validMoves state)
-      in maximum values
-  | otherwise =
-      let values = parMap rdeepseq
-                   (\pit -> minimax (makeMove state pit) (depth - 1) True alpha beta)
-                   (validMoves state)
-      in minimum values
-
-
-bestMove :: GameState -> Int -> Pit
-bestMove state depth =
-  let moves = validMoves state
-  in if null moves
-     then error "No valid moves available"
-     else 
-       let scores = parMap rdeepseq
-                    (\pit -> (pit, minimax (makeMove state pit) (depth - 1) False (-1000) 1000))
-                    moves
-       in fst $ maximumBy (compare `on` snd) scores
-
--}
-
 -- Function to display the game board in the requested format
 displayBoard :: GameState -> IO ()
 displayBoard (GameState b _) = do

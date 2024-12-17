@@ -3,8 +3,7 @@ module Main where
 import System.Environment (getArgs)
 import Run (playGame)
 import GameState (GameState(..), Player(..))
-
--- Main function: Run the game with provided arguments
+ 
 main :: IO ()
 main = do
   -- Get command-line arguments
@@ -18,8 +17,7 @@ main = do
       playGame initialState depth parallelDepth
     _ -> do
       putStrLn "Usage: ParaMancala3 <depth> <parallelDepth>"
-
--- New function to start the game logic, making it testable
+ 
 startGame :: Int -> Int -> IO ()
 startGame depth parallelDepth = do
   putStrLn "Starting Mancala Game"
