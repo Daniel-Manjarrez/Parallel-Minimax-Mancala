@@ -15,7 +15,7 @@ ParaMancala2.hs attempt sequential Minimax in the shallower level while parallel
 
 ParaMancala3.hs attempt parallelized Minimax in the shallower level while sequential Minimax in the deeper level.
 
-ParaMancala4.hs is the final version, applying principal variation of sequential leftmost search. 
+ParaMancala4.hs is the final version, applying principal variation of sequential leftmost search or Young Brothers Wait Concept. This is the final version of this project and the combination of source codes.  
 
 # Configuration and Execution
 
