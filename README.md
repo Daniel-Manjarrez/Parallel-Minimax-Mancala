@@ -40,7 +40,7 @@ or
 
 ```ghc -O2 -threaded -rtsopts -with-rtsopts=-N <..>.hs```
 
-```./ParaMancala3 <depth> <paradepth> +RTS -N6```
+```./ParaMancala4 <depth> <paradepth> +RTS -N6```
 
 
 
