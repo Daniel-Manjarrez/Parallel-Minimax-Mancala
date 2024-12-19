@@ -18,7 +18,6 @@ makeMove (GameState b p) pit =
   let seeds = b !! pit
       b1 = take pit b ++ [0] ++ drop (pit + 1) b  -- Remove seeds from the selected pit
       (b2, finalIdx) = sow (GameState b1 p) pit seeds
-      -- finalIdx = (pit + seeds) `mod` 14
       isOwnStore = (p == Player1 && finalIdx == 6) || (p == Player2 && finalIdx == 13)
       isCapture = p == Player1 && finalIdx < 6 && b2 !! finalIdx == 1 && b2 !! (12 - finalIdx) > 0
               || p == Player2 && finalIdx > 6 && finalIdx < 13 && b2 !! finalIdx == 1 && b2 !! (12 - finalIdx) > 0

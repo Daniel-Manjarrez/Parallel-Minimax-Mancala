@@ -7,7 +7,7 @@ data GameState = GameState { board :: Board, currentPlayer :: Player } deriving 
  
 isGameOver :: GameState -> Bool
 isGameOver (GameState b _) =
-  all (== 0) (take 6 b) || all (== 0) (drop 7 b)
+  all (== 0) (take 6 b) || all (== 0) (take 6 (drop 7 b))
  
 switchPlayer :: Player -> Player
 switchPlayer Player1 = Player2
