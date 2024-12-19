@@ -15,7 +15,7 @@ evaluateBoard (GameState b Player2) = b !! 13 - b !! 6
 -- Minimax with alpha-beta pruning
 minimax :: GameState -> Int -> Bool -> Int -> Int -> Int -> Int
 minimax state depth maximizingPlayer alpha beta parallelDepth
-  | depth == 0 || isGameOver state || null (validMoves state) = evaluateBoard state
+  | depth == 0 || isGameOver state || null validMovesList = evaluateBoard state
   | depth >= parallelDepth =
     let (firstMove:restMoves) = validMovesList
         firstValue = seqMinimax (makeMove state firstMove) (depth - 1) (not maximizingPlayer) alpha beta
